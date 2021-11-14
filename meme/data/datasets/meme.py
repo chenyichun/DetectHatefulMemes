@@ -270,9 +270,9 @@ class Meme(Dataset):
                 gt_x, gt_y, gt_w, gt_h = self.refer.getRefBox(ref_id=ref_id)
             if self.zip_mode:
                 image_fn = os.path.join(self.data_path, iset + '.zip@/' + iset,
-                                        'COCO_{}_{:012d}.jpg'.format(iset, ref['image_id']))
+                                        '{:05d}.png'.format(ref['image_id']))
             else:
-                image_fn = os.path.join(self.data_path, iset, 'COCO_{}_{:012d}.jpg'.format(iset, ref['image_id']))
+                image_fn = os.path.join(self.data_path, iset, '{:05d}.png'.format(ref['image_id']))
             for sent in ref['sentences']:
                 idb = {
                     'sent_id': sent['sent_id'],
