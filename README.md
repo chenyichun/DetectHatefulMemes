@@ -1,5 +1,16 @@
 # VL-BERT
 
+## Model preparation
+- Pretrained models: Please follow the the guideline from the original [repo](https://github.com/jackroos/VL-BERT/blob/4373674cbf2bcd6c09a2c26abfdb6705b870e3be/model/pretrained_model/PREPARE_PRETRAINED_MODELS.md)
+
+- Meme data: Please put the `img` folder from the meme dataset under `data/meme/data`. Then, to get the correct folder strcutre, go to `data/meme/data` and run `python split_img.py`. This should give you `train2014` and `val2014` under `data/meme`.
+
+## To run meme experiment, under the root directory, run
+```
+./scripts/nondist_run.sh meme/train_end2end.py cfgs/meme/base_gt_boxes_4x16G_test.yaml checkpoint/
+```
+-------------------------------------------------
+
 By 
 [Weijie Su](https://www.weijiesu.com/), 
 [Xizhou Zhu](https://scholar.google.com/citations?user=02RXI00AAAAJ&hl=en), 
