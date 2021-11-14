@@ -1,5 +1,8 @@
 # VL-BERT
 
+## Environmrnt setup
+Please refer to the setup **Prepare/Environment** section below from the author's readme. Note that I replace ```conda install pytorch=1.1.0 cudatoolkit=9.0 -c pytorch``` with  ```conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0 -c pytorch```.
+
 ## Model preparation
 - Pretrained models: Please follow the the guideline from the original [repo](https://github.com/jackroos/VL-BERT/blob/4373674cbf2bcd6c09a2c26abfdb6705b870e3be/model/pretrained_model/PREPARE_PRETRAINED_MODELS.md)
 
