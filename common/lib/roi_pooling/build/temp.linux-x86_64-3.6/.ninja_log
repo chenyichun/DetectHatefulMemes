@@ -1,0 +1,5 @@
+# ninja log v5
+1	10250	1636658532497299937	/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/build/temp.linux-x86_64-3.6/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/cuda/ROIAlign_cuda.o	fd00612a5fd218b4
+1	10260	1636658532507299937	/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/build/temp.linux-x86_64-3.6/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/cuda/ROIPool_cuda.o	de8baf77778818b4
+0	14387	1636658536637299962	/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/build/temp.linux-x86_64-3.6/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/cpu/ROIAlign_cpu.o	589f4574f67f4c5e
+0	17827	1636658540067299983	/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/build/temp.linux-x86_64-3.6/home/yichun/workspace/VL-BERT/common/lib/roi_pooling/vision.o	16c23137c29e435e

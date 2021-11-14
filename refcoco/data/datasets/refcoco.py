@@ -17,6 +17,7 @@ from common.utils.bbox import bbox_iou_py_vectorized
 
 from pycocotools.coco import COCO
 from .refer.refer import REFER
+import pdb
 
 
 class RefCOCO(Dataset):
@@ -313,7 +314,8 @@ class RefCOCO(Dataset):
         # group
         group_ids = torch.zeros(len(database))
         horz = widths >= heights
-        vert = 1 - horz
+        #vert = 1 - horz
+        vert = ~horz
         group_ids[horz] = 0
         group_ids[vert] = 1
 

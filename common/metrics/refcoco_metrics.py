@@ -31,6 +31,20 @@ class RefAccuracy(EvalMetric):
             self.num_inst += cls_logits.shape[0]
 
 
+class BinAccuracy(EvalMetric):
+    def __init__(self, allreduce=False, num_replicas=1):
+        super(BinAccuracy, self).__init__('BinAcc', allreduce, num_replicas)
+        self.sigmoid = torch.nn.Sigmoid()
+
+    def update(self, outputs):
+        with torch.no_grad():
+            cls_logits = outputs['label_logits']
+            cls_pred = (self.sigmoid(cls_logits) > 0.5).long()
+            label = outputs['label'].long()
+            self.sum_metric += float((cls_pred == label).sum().item())
+            self.num_inst += cls_logits.shape[0]
+
+
 class ClsAccuracy(EvalMetric):
     def __init__(self, allreduce=False, num_replicas=1):
         super(ClsAccuracy, self).__init__('ClsAcc', allreduce, num_replicas)

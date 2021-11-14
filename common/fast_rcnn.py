@@ -13,7 +13,7 @@ from common.utils.flatten import Flattener
 from common.utils.pad_sequence import pad_sequence
 from common.utils.bbox import coordinate_embeddings
 
-
+import pdb
 class FastRCNN(nn.Module):
     def __init__(self, config, average_pool=True, final_dim=768, enable_cnn_reg_loss=False):
         """

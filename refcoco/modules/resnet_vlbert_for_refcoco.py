@@ -6,6 +6,7 @@ from external.pytorch_pretrained_bert import BertTokenizer
 from common.module import Module
 from common.fast_rcnn import FastRCNN
 from common.visual_linguistic_bert import VisualLinguisticBert, VisualLinguisticBertMVRCHeadTransform
+import pdb
 
 BERT_WEIGHTS_NAME = 'pytorch_model.bin'
 

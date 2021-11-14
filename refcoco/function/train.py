@@ -32,7 +32,7 @@ try:
 except ImportError:
     pass
     #raise ImportError("Please install apex from https://www.github.com/nvidia/apex if you want to use fp16.")
-
+import pdb
 
 def train_net(args, config):
     # setup logger
