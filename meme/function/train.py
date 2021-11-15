@@ -251,7 +251,7 @@ def train_net(args, config):
     if (rank is None) or (rank == 0):
         epoch_end_callbacks = [Checkpoint(model_prefix, config.CHECKPOINT_FREQUENT)]
     validation_monitor = ValidationMonitor(do_validation, val_loader, val_metrics,
-                                           host_metric_name='ClsAcc',
+                                           host_metric_name='BinAcc',
                                            label_index_in_batch=config.DATASET.LABEL_INDEX_IN_BATCH)
 
     # optimizer initial lr before

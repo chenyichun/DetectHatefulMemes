@@ -76,7 +76,10 @@ class Meme(Dataset):
         self.root_path = root_path
         self.transform = transform
         self.image_sets = [iset.strip() for iset in image_set.split('+')]
-        self.coco = COCO(annotation_file=os.path.join(data_path, coco_annot_files['train2014']))
+        if self.image_sets[0] == 'train':
+            self.coco = COCO(annotation_file=os.path.join(data_path, coco_annot_files['train2014']))
+        elif self.image_sets[0] == 'val':
+            self.coco = COCO(annotation_file=os.path.join(data_path, coco_annot_files['val2014']))
         # self.refer = REFER(data_path, dataset='refcoco+', splitBy='unc')
         self.refer = REFER(data_path, dataset='meme', splitBy='unc')
         self.refer_ids = []
