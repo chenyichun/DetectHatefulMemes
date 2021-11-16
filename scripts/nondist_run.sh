@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-python "$1" --cfg "$2" --model-dir "$3"
+python "$1" --cfg "$2" --model-dir "$3" --log-dir "$4"
 

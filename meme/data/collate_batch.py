@@ -36,9 +36,9 @@ class BatchCollator(object):
             expression = ibatch[self.data_names.index('expression')]
             out['expression'] = clip_pad_1d(expression, max_expression_length, pad=0)
 
-            if 'label' in self.data_names:
-                label = ibatch[self.data_names.index('label')]
-                out['label'] = clip_pad_1d(label, max_boxes, pad=-1)
+            # if 'label' in self.data_names:
+            #     label = ibatch[self.data_names.index('label')]
+            #     out['label'] = clip_pad_1d(label, max_boxes, pad=-1)
 
             other_names = [data_name for data_name in self.data_names if data_name not in out]
             for name in other_names:

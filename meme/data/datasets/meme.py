@@ -139,10 +139,13 @@ class Meme(Dataset):
             ann_ids = self.coco.getAnnIds(imgIds=img_id)
             anns = self.coco.loadAnns(ann_ids)
             boxes = []
+            label = []
             for ann in anns:
                 x_, y_, w_, h_ = ann['bbox']
                 boxes.append([x_, y_, x_ + w_, y_ + h_])
-            boxes = torch.as_tensor(boxes)
+            boxes = torch.as_tensor(boxes).float()
+            label = [ann['category_id']]
+            label = torch.as_tensor(label)
         elif self.boxes == 'proposal':
             if self.proposal_source == 'official':
                 boxes = torch.as_tensor(self.proposals[img_id])
@@ -203,9 +206,9 @@ class Meme(Dataset):
             gt_box[[1, 3]] = gt_box[[1, 3]].clamp(min=0, max=h - 1)
 
         # assign label to each box by its IoU with gt_box
-        if not self.test_mode:
-            boxes_ious = bbox_iou_py_vectorized(boxes, gt_box[None]).view(-1)
-            label = (boxes_ious > 0.5).float()
+        # if not self.test_mode:
+        #     boxes_ious = bbox_iou_py_vectorized(boxes, gt_box[None]).view(-1)
+        #     label = (boxes_ious > 0.5).float()
 
         # expression
         exp_tokens = idb['tokens']
