@@ -179,7 +179,6 @@ def train_net(args, config):
             optimizer_grouped_parameters = []
             optimizer_grouped_parameters.append({'params': model.final_mlp.parameters()})
 
-
         if config.TRAIN.OPTIMIZER == 'SGD':
             optimizer = optim.SGD(optimizer_grouped_parameters,
                                   lr=config.TRAIN.LR * batch_size,
