@@ -114,6 +114,9 @@ class Meme(Dataset):
         if zip_mode:
             self.zipreader = ZipReader()
 
+        ####### Load pseudo labels from multiple files #######
+        self.img_id2pseudo_labels = self.load_img_id2pseudo_labels('../../../pseudo_labels/')
+
         self.database = self.load_annotations()
         if self.aspect_grouping:
             self.group_ids = self.group_aspect(self.database)
@@ -145,6 +148,10 @@ class Meme(Dataset):
                 boxes.append([x_, y_, x_ + w_, y_ + h_])
             boxes = torch.as_tensor(boxes).float()
             label = [ann['category_id']]
+
+            ####### Add the pseudo labels to the label list #######
+            label.extend(self.img_id2pseudo_labels[img_id])
+            
             label = torch.as_tensor(label)
         elif self.boxes == 'proposal':
             if self.proposal_source == 'official':
@@ -240,6 +247,46 @@ class Meme(Dataset):
     @staticmethod
     def b64_decode(string):
         return base64.decodebytes(string.encode())
+
+
+    ####### The function is added to load the pseudo labels #######
+    def load_img_id2pseudo_labels(self, pseudo_label_dir):
+        '''
+        The function loads the pseudo labels from files in pseudo_label_dir and returns a mapping from image ids to a list of pseudo labels.
+        '''
+        img_id2pseudo_labels = dict()
+        
+        img_ids = list()
+        with open(os.path.join(pseudo_label_dir, 'images_list.txt')) as f:
+            for line in f:
+                img_id = int(line.rstrip().split('/')[-1][:-4])
+                img_ids.append(img_ids)
+        
+        with open(os.path.join(pseudo_label_dir, 'predictions.csv')) as f:
+            idx = 0
+            for line in f:
+                img_id = img_ids[idx]
+                probs = [float(x) for x in line.rstrip().split(',')]
+                img_id2pseudo_labels[img_id] = probs
+                idx += 1
+        
+        with open(os.path.join(pseudo_label_dir, 'text_SA_labels.txt')) as f:
+            for line in f:
+                line_list = line.rstrip().split(',')
+                img_id = int(line_list[0])
+                score = float(line_list[1])
+                img_id2pseudo_labels[img_id].append(score)
+
+        with open(os.path.join(pseudo_label_dir, 'multimodal_CLIP_labels.txt')) as f:
+            for line in f:
+                line_list = line.rstrip().split(',')
+                img_id = int(line_list[0])
+                score = float(line_list[1])
+                img_id2pseudo_labels[img_id].append(score)
+
+        return img_id2pseudo_labels
+
+
 
     def load_annotations(self):
         tic = time.time()
