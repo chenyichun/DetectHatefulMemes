@@ -79,7 +79,7 @@ class ResNetVLBERT(Module):
                       boxes,
                       im_info,
                       expression,
-                      label,
+                      label
                       ):
         ###########################################
 
@@ -91,8 +91,8 @@ class ResNetVLBERT(Module):
         origin_len = 1 # don't care number of boxes
         box_mask = box_mask[:, :max_len]
         boxes = boxes[:, :max_len]
-        label = label[:, :max_len]
-        label_img = label[:, 0].unsqueeze(1) #TODO: CHECK
+        # label = label[:, :max_len]
+        label_img = label
 
         obj_reps = self.image_feature_extractor(images=images,
                                                 boxes=boxes,
@@ -141,7 +141,7 @@ class ResNetVLBERT(Module):
 
         # loss
         # cls_loss = F.binary_cross_entropy_with_logits(logits[box_mask], label[box_mask])
-        cls_loss = F.binary_cross_entropy_with_logits(logits, label_img)
+        cls_loss = F.binary_cross_entropy_with_logits(logits, label_img.float())
 
         # pad back to origin len for compatibility with DataParallel
         logits_ = logits.new_zeros((logits.shape[0], origin_len)).fill_(-10000.0)
