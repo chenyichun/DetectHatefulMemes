@@ -1,27 +1,27 @@
 ---
 RNG_SEED: 12345
-OUTPUT_PATH: './output/vl-bert/refcoco+'
+OUTPUT_PATH: './output/vl-bert-tuneall/meme'
 MODULE: ResNetVLBERT
 GPUS: '0'
 LOG_FREQUENT: 100
 VAL_FREQUENT: 1
 CHECKPOINT_FREQUENT: 1
-MODEL_PREFIX: 'vl-bert_base_res101_refcoco'
+MODEL_PREFIX: 'vl-bert_base_res101_meme'
 NUM_WORKERS_PER_GPU: 0
 SCALES:
-- 600
-- 1000
+- 400
+- 800
 
 DATASET:
-  DATASET: refcoco+
+  DATASET: meme
   LABEL_INDEX_IN_BATCH: -1
   APPEND_INDEX: false
-  DATASET_PATH: './data/coco'
+  DATASET_PATH: './data/meme'
   ROOT_PATH: './'
   TRAIN_IMAGE_SET: 'train'
   VAL_IMAGE_SET: 'val'
   TEST_IMAGE_SET: 'test'
-  ADD_IMAGE_AS_A_BOX: true
+  ADD_IMAGE_AS_A_BOX: false
   ZIP_MODE: false
   CACHE_MODE: false
   IGNORE_DB_CACHE: true
@@ -65,6 +65,7 @@ NETWORK:
   ENABLE_CNN_REG_LOSS: false
 
   VLBERT:
+    with_pooler: true
     input_transform_type: 1
     visual_size: 768
     hidden_size: 768
@@ -85,12 +86,13 @@ NETWORK:
   CLASSIFIER_DROPOUT: 0.0
 
 TRAIN:
+  FINETUNE_CLS: false
   SHUFFLE: true
   FLIP_PROB: 0.5
   BATCH_IMAGES: 2
   ASPECT_GROUPING: true
   RESUME: false
-  AUTO_RESUME: true
+  AUTO_RESUME: false
   BEGIN_EPOCH: 0
   END_EPOCH: 20
   OPTIMIZER: 'AdamW'
