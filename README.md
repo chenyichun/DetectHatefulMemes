@@ -10,7 +10,7 @@ Please refer to the setup **Prepare/Environment** section below from the author'
 
 ## To run meme experiment, under the root directory, run
 ```
-./scripts/nondist_run.sh meme/train_end2end.py cfgs/meme/base_gt_boxes_4x16G_test.yaml checkpoint/
+./scripts/nondist_run.sh meme/train_end2end.py cfgs/meme/base_gt_boxes_4x16G_tuneall.yaml checkpoint/ logs/tuneall
 ```
 -------------------------------------------------
 
