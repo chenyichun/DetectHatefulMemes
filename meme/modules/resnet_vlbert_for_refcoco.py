@@ -39,9 +39,11 @@ class ResNetVLBERT(Module):
         self.vlbert = VisualLinguisticBert(config.NETWORK.VLBERT,
                                          language_pretrained_model_path=language_pretrained_model_path)
 
+        self.final_mlp_dims = config.NETWORK.FINAL_MLP_DIMS
         transform = VisualLinguisticBertMVRCHeadTransform(config.NETWORK.VLBERT)
         linear1 = nn.Linear(config.NETWORK.VLBERT.hidden_size, config.NETWORK.VLBERT.hidden_size)
-        linear2 = nn.Linear(config.NETWORK.VLBERT.hidden_size, 1)
+        ####### Set the output number of dimensions of final MLP with the given dims #######
+        linear2 = nn.Linear(config.NETWORK.VLBERT.hidden_size, config.NETWORK.FINAL_MLP_DIMS)
         self.final_mlp = nn.Sequential(
             transform,
             nn.Dropout(config.NETWORK.CLASSIFIER_DROPOUT, inplace=False),
@@ -49,6 +51,15 @@ class ResNetVLBERT(Module):
             nn.ReLU(inplace=True),
             linear2
         )
+
+        ####### Additional parameters to use in class methods #######
+        self.weight_of_class_one = config.NETWORK.WEIGHT_OF_CLASS_ONE = 5200.0 / 2800.0
+        self.pseudo_img_sa_weight = config.NETWORK.PSEUDO_IMG_SA_WEIGHT
+        self.pseudo_img_sa_indices = config.NETWORK.PSEUDO_IMG_SA_INDICES
+        self.pseudo_text_sa_weight = config.NETWORK.PSEUDO_TEXT_SA_WEIGHT
+        self.pseudo_text_sa_indices = config.NETWORK.PSEUDO_TEXT_SA_INDICES
+        self.pseudo_both_sa_weight = config.NETWORK.PSEUDO_BOTH_SA_WEIGHT
+        self.pseudo_both_sa_indices = config.NETWORK.PSEUDO_BOTH_SA_INDICES
 
         # init weights
         self.init_weight()
@@ -88,11 +99,15 @@ class ResNetVLBERT(Module):
         box_mask = (boxes[:, :, 0] > - 1.5)
         max_len = int(box_mask.sum(1).max().item())
         # origin_len = boxes.shape[1]
-        origin_len = 1 # don't care number of boxes
+        ####### Is origin_len supposed to be 6 here? #######
+        origin_len = self.final_mlp_dims # don't care number of boxes
         box_mask = box_mask[:, :max_len]
         boxes = boxes[:, :max_len]
         # label = label[:, :max_len]
-        label_img = label
+        label_img = label[:, 0:1]
+        label_img_sa = label[:, 1:4]
+        label_text_sa = label[:, 4:5]
+        label_both_sa = label[:, 5:6]
 
         obj_reps = self.image_feature_extractor(images=images,
                                                 boxes=boxes,
@@ -140,8 +155,27 @@ class ResNetVLBERT(Module):
         logits = self.final_mlp(pooled_output)#.squeeze(-1)
 
         # loss
+        loss = 0.0
+
+        ####### Is class wieghts added this way? #######
         # cls_loss = F.binary_cross_entropy_with_logits(logits[box_mask], label[box_mask])
-        cls_loss = F.binary_cross_entropy_with_logits(logits, label_img.float())
+        # cls_loss = F.binary_cross_entropy_with_logits(logits[:, 0: 1], label_img.float(), pos_weight = torch.tensor([1.0, self.weight_of_class_one]).cuda())
+        cls_loss = F.binary_cross_entropy_with_logits(logits[:, 0: 1], label_img.float(), pos_weight = torch.tensor([self.weight_of_class_one]).cuda())
+        loss += cls_loss.mean()
+        if self.pseudo_img_sa_weight:
+            start_idx, end_idx = self.pseudo_img_sa_indices
+            # print ('shape of pred, lab: ', logits[:, start_idx: end_idx].shape, label_img_sa.shape)
+            # img_sa_loss = F.cross_entropy(logits[:, start_idx: end_idx], label_img_sa)
+            img_sa_loss = F.kl_div(logits[:, start_idx: end_idx], label_img_sa)
+            loss += self.pseudo_img_sa_weight * img_sa_loss
+        if self.pseudo_text_sa_weight:
+            start_idx, end_idx = self.pseudo_text_sa_indices
+            text_sa_loss = F.binary_cross_entropy_with_logits(logits[:, start_idx: end_idx], label_text_sa)
+            loss += self.pseudo_text_sa_weight * text_sa_loss
+        if self.pseudo_both_sa_weight:
+            start_idx, end_idx = self.pseudo_both_sa_indices
+            both_sa_loss = F.mse_loss(logits[:, start_idx: end_idx], label_both_sa)
+            loss += self.pseudo_both_sa_weight * both_sa_loss
 
         # pad back to origin len for compatibility with DataParallel
         logits_ = logits.new_zeros((logits.shape[0], origin_len)).fill_(-10000.0)
@@ -154,6 +188,8 @@ class ResNetVLBERT(Module):
         label_img_[:, :label_img.shape[1]] = label_img
         label_img = label_img_
 
+
+        ####### outputs is not modified according to multitasking losses yet #######
         # outputs.update({'label_logits': logits,
         #                 'label': label,
         #                 'cls_loss': cls_loss})
@@ -161,9 +197,11 @@ class ResNetVLBERT(Module):
                         'label': label_img,
                         'cls_loss': cls_loss})
 
-        loss = cls_loss.mean()
+        # loss = cls_loss.mean()
 
         return outputs, loss
+
+
 
     def inference_forward(self,
                           image,

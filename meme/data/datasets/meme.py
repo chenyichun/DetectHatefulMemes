@@ -115,7 +115,7 @@ class Meme(Dataset):
             self.zipreader = ZipReader()
 
         ####### Load pseudo labels from multiple files #######
-        self.img_id2pseudo_labels = self.load_img_id2pseudo_labels('../../../pseudo_labels/')
+        self.img_id2pseudo_labels = self.load_img_id2pseudo_labels('./pseudo_labels/')
 
         self.database = self.load_annotations()
         if self.aspect_grouping:
@@ -260,7 +260,7 @@ class Meme(Dataset):
         with open(os.path.join(pseudo_label_dir, 'images_list.txt')) as f:
             for line in f:
                 img_id = int(line.rstrip().split('/')[-1][:-4])
-                img_ids.append(img_ids)
+                img_ids.append(img_id)
         
         with open(os.path.join(pseudo_label_dir, 'predictions.csv')) as f:
             idx = 0
