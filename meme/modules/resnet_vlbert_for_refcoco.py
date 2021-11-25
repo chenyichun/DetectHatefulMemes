@@ -276,6 +276,7 @@ class ResNetVLBERT(Module):
         # classifier
         # logits = self.final_mlp(hidden_states_regions).squeeze(-1)
         logits = self.final_mlp(pooled_output)#.squeeze(-1)
+        logits = logits[:, 0].unsqueeze(1)
 
         # pad back to origin len for compatibility with DataParallel
         logits_ = logits.new_zeros((logits.shape[0], origin_len)).fill_(-10000.0)
