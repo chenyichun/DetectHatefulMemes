@@ -170,7 +170,7 @@ class ResNetVLBERT(Module):
             start_idx, end_idx = self.pseudo_img_sa_indices
             # print ('shape of pred, lab: ', logits[:, start_idx: end_idx].shape, label_img_sa.shape)
             # img_sa_loss = F.cross_entropy(logits[:, start_idx: end_idx], label_img_sa)
-            img_sa_loss = self.pseudo_img_sa_weight * F.kl_div(logits[:, start_idx: end_idx], label_img_sa)
+            img_sa_loss = self.pseudo_img_sa_weight * F.kl_div(F.log_softmax(logits[:, start_idx: end_idx]), label_img_sa, reduction = 'batchmean')
             loss += img_sa_loss
             update_dict['img_sa_loss'] = img_sa_loss
         if self.pseudo_text_sa_weight:
