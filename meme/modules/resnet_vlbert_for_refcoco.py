@@ -156,31 +156,42 @@ class ResNetVLBERT(Module):
 
         # loss
         loss = 0.0
+        update_dict = dict()
 
         ####### Is class wieghts added this way? #######
         # cls_loss = F.binary_cross_entropy_with_logits(logits[box_mask], label[box_mask])
         # cls_loss = F.binary_cross_entropy_with_logits(logits[:, 0: 1], label_img.float(), pos_weight = torch.tensor([1.0, self.weight_of_class_one]).cuda())
         cls_loss = F.binary_cross_entropy_with_logits(logits[:, 0: 1], label_img.float(), pos_weight = torch.tensor([self.weight_of_class_one]).cuda())
+
+        update_dict['cls_loss'] = cls_loss
+
         loss += cls_loss.mean()
         if self.pseudo_img_sa_weight:
             start_idx, end_idx = self.pseudo_img_sa_indices
             # print ('shape of pred, lab: ', logits[:, start_idx: end_idx].shape, label_img_sa.shape)
             # img_sa_loss = F.cross_entropy(logits[:, start_idx: end_idx], label_img_sa)
-            img_sa_loss = F.kl_div(logits[:, start_idx: end_idx], label_img_sa)
-            loss += self.pseudo_img_sa_weight * img_sa_loss
+            img_sa_loss = self.pseudo_img_sa_weight * F.kl_div(logits[:, start_idx: end_idx], label_img_sa)
+            loss += img_sa_loss
+            update_dict['img_sa_loss'] = img_sa_loss
         if self.pseudo_text_sa_weight:
             start_idx, end_idx = self.pseudo_text_sa_indices
-            text_sa_loss = F.binary_cross_entropy_with_logits(logits[:, start_idx: end_idx], label_text_sa)
-            loss += self.pseudo_text_sa_weight * text_sa_loss
+            text_sa_loss = self.pseudo_text_sa_weight * F.binary_cross_entropy_with_logits(logits[:, start_idx: end_idx], (label_text_sa + 1.0) / 2.0)
+            loss += text_sa_loss
+            update_dict['text_sa_loss'] = text_sa_loss
         if self.pseudo_both_sa_weight:
             start_idx, end_idx = self.pseudo_both_sa_indices
-            both_sa_loss = F.mse_loss(logits[:, start_idx: end_idx], label_both_sa)
-            loss += self.pseudo_both_sa_weight * both_sa_loss
+            both_sa_loss = self.pseudo_both_sa_weight * F.mse_loss(logits[:, start_idx: end_idx], label_both_sa)
+            loss += both_sa_loss
+            update_dict['both_sa_loss'] = both_sa_loss
 
         # pad back to origin len for compatibility with DataParallel
         logits_ = logits.new_zeros((logits.shape[0], origin_len)).fill_(-10000.0)
         logits_[:, :logits.shape[1]] = logits
         logits = logits_
+
+        ####### Should it be detached? #######
+        update_dict['label_logits'] = logits.detach()
+
         # label_ = label.new_zeros((logits.shape[0], origin_len)).fill_(-1)
         # label_[:, :label.shape[1]] = label
         # label = label_
@@ -188,14 +199,15 @@ class ResNetVLBERT(Module):
         label_img_[:, :label_img.shape[1]] = label_img
         label_img = label_img_
 
+        update_dict['label'] = label_img.detach()
+
 
         ####### outputs is not modified according to multitasking losses yet #######
         # outputs.update({'label_logits': logits,
         #                 'label': label,
         #                 'cls_loss': cls_loss})
-        outputs.update({'label_logits': logits,
-                        'label': label_img,
-                        'cls_loss': cls_loss})
+
+        outputs.update(update_dict)
 
         # loss = cls_loss.mean()
 

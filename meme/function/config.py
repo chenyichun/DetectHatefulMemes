@@ -164,7 +164,7 @@ _C.TRAIN.WD = 0.0001
 _C.TRAIN.MOMENTUM = 0.9
 _C.TRAIN.FP16 = False
 _C.TRAIN.FP16_LOSS_SCALE = 128.0
-_C.TRAIN.LOSS_LOGGERS = [('cls_loss', 'ClsLoss')]
+_C.TRAIN.LOSS_LOGGERS = [('cls_loss', 'ClsLoss'), ('img_sa_loss', 'ImgSaLoss'), ('text_sa_loss', 'TextSaLoss'), ('both_sa_loss', 'BothSaLoss')]
 
 # ------------------------------------------------------------------------------------- #
 # Common validation related options
