@@ -4,3 +4,4 @@ model
 data/meme/train2014
 data/meme/val2014
 data/meme/data/img
+logs
