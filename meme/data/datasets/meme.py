@@ -117,7 +117,10 @@ class Meme(Dataset):
         ####### Load pseudo labels from multiple files #######
         self.img_id2pseudo_labels = self.load_img_id2pseudo_labels('./pseudo_labels/')
 
-        self.database = self.load_annotations()
+        if self.image_sets[0] == 'train':
+            self.database = self.load_annotations('train2014')
+        elif self.image_sets[0] == 'val':
+            self.database = self.load_annotations('val2014')
         if self.aspect_grouping:
             self.group_ids = self.group_aspect(self.database)
 
@@ -288,7 +291,7 @@ class Meme(Dataset):
 
 
 
-    def load_annotations(self):
+    def load_annotations(self, iset):
         tic = time.time()
         database = []
         # db_cache_name = 'refcoco+_boxes_{}_{}'.format(self.boxes, '+'.join(self.image_sets))
@@ -318,7 +321,6 @@ class Meme(Dataset):
         tic = time.time()
 
         for ref_id, ref in zip(self.refer_ids, self.refs):
-            iset = 'train2014'
             if not self.test_mode:
                 gt_x, gt_y, gt_w, gt_h = self.refer.getRefBox(ref_id=ref_id)
             if self.zip_mode:
